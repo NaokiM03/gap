@@ -1,0 +1,180 @@
+pub struct Arg<'a> {
+    pub name: &'a str,
+    pub short: Option<char>,
+    pub long: Option<&'a str>,
+    pub need_value: bool,
+    pub index: Option<u8>,
+}
+
+impl<'a> Arg<'a> {
+    fn validate_short(s: &str) {
+        if s.len() != 1 {
+            panic!("single character can be used for short arg param.");
+        }
+        if !s.chars().all(|x| x.is_ascii_lowercase()) {
+            panic!("ascii character can be used for short arg param.");
+        }
+    }
+
+    fn validate_long(s: &str) {
+        if s.len() <= 1 {
+            panic!("more than two character can be used for long arg param.")
+        }
+        if !s.chars().all(|x| x.is_ascii_lowercase()) {
+            panic!("ascii character can be used for long arg param.");
+        }
+    }
+
+    fn validate_need_value(&self) {
+        if self.is_name_empty() {
+            panic!("expect short arg param or long arg param before define this.")
+        }
+    }
+
+    fn validate_index(&self) {
+        if self.is_name_present() {
+            panic!("index cannot be used simultaneously with short arg param or long arg param.")
+        }
+    }
+}
+
+impl<'a> Arg<'a> {
+    pub fn new(n: &'a str) -> Self {
+        Arg {
+            name: n,
+            short: None,
+            long: None,
+            need_value: false,
+            index: None,
+        }
+    }
+
+    pub fn short(mut self, s: &str) -> Self {
+        Self::validate_short(s);
+        self.short = s.chars().next();
+        self
+    }
+
+    pub fn long(mut self, s: &'a str) -> Self {
+        Self::validate_long(s);
+        self.long = Some(s);
+        self
+    }
+
+    pub fn need_value(mut self, b: bool) -> Self {
+        Self::validate_need_value(&self);
+        self.need_value = b;
+        self
+    }
+
+    pub fn index(mut self, i: u8) -> Self {
+        Self::validate_index(&self);
+        self.index = Some(i);
+        self
+    }
+
+    pub fn is_name_present(&self) -> bool {
+        self.short.is_some() || self.long.is_some()
+    }
+
+    pub fn is_name_empty(&self) -> bool {
+        self.short.is_none() && self.long.is_none()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    mod short {
+        use super::*;
+
+        #[test]
+        fn base() {
+            let actual = Arg::new("foo").short("a").short;
+            let expected = Some('a');
+            assert_eq!(actual, expected);
+        }
+    
+        #[test]
+        #[should_panic]
+        fn with_empty_str() {
+            let _ = Arg::new("foo").short("");
+        }
+    
+        #[test]
+        #[should_panic]
+        fn wigh_two_str() {
+            let _ = Arg::new("foo").short("ab").short;
+        }
+    
+        #[test]
+        #[should_panic]
+        fn with_not_ascii() {
+            let _ = Arg::new("foo").short("!").short;
+        }    
+    }
+
+    mod long {
+        use super::*;
+
+        #[test]
+        fn base() {
+            let actual = Arg::new("foo").long("abc").long;
+            let expected = Some("abc");
+            assert_eq!(actual, expected);
+        }
+    
+        #[test]
+        #[should_panic]
+        fn with_empty_str() {
+            let _ = Arg::new("foo").long("");
+        }
+    
+        #[test]
+        #[should_panic]
+        fn wigh_single_char() {
+            let _ = Arg::new("foo").long("a");
+        }
+    
+        #[test]
+        #[should_panic]
+        fn with_not_ascii() {
+            let _ = Arg::new("foo").long("a!");
+        }    
+    }
+
+    mod need_value {
+        use super::*;
+
+        #[test]
+        fn base() {
+            let actual = Arg::new("foo").short("a").need_value(true).need_value;
+            let expected = true;
+            assert_eq!(actual, expected);
+        }
+
+        #[test]
+        #[should_panic]
+        fn with_no_name() {
+            let _ = Arg::new("foo").need_value(true);
+        }
+    }
+
+    mod index {
+        use super::*;
+
+        #[test]
+        fn base() {
+            let actual = Arg::new("foo").index(1).index;
+            let expected = Some(1);
+            assert_eq!(actual, expected);
+        }
+
+        #[test]
+        #[should_panic]
+        fn with_name() {
+            let _ = Arg::new("foo").short("a").index(1);
+        }
+    }
+}
