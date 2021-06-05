@@ -1,3 +1,4 @@
+use core::panic;
 use std::collections::{HashSet, BTreeMap};
 
 use crate::arg::{Arg, opt_arg::OptArg, pos_arg::PosArg, flag_arg::FlagArg};
@@ -88,5 +89,41 @@ impl<'p> Parser<'p> {
         }
 
         self
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn base() {
+        let actual = Parser::new().arg(Arg::new("foo").short("a")).arg_names_list.contains("foo");
+        let expected = true;
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    #[should_panic]
+    fn unique_arg_name() {
+        let _ = Parser::new().arg(Arg::new("foo")).arg(Arg::new("foo"));
+    }
+
+    #[test]
+    #[should_panic]
+    fn unique_short_name() {
+        let _ = Parser::new().arg(Arg::new("foo").short("a")).arg(Arg::new("bar").short("a"));
+    }
+
+    #[test]
+    #[should_panic]
+    fn unique_long_name() {
+        let _ = Parser::new().arg(Arg::new("foo").long("abc")).arg(Arg::new("bar").long("abc"));
+    }
+
+    #[test]
+    #[should_panic]
+    fn unique_index() {
+        let _ = Parser::new().arg(Arg::new("foo").index(1)).arg(Arg::new("bar").index(1));
     }
 }
