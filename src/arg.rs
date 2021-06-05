@@ -7,6 +7,15 @@ pub struct Arg<'arg> {
 }
 
 impl<'arg> Arg<'arg> {
+    fn validate_arg_name(s: &str) {
+        if s.is_empty() {
+            panic!("arg name is required.")
+        }
+        if !s.chars().all(|x| x.is_ascii_lowercase() || x.is_ascii_digit()) {
+            panic!("ascii character or ascii digit can be used for arg name.")
+        }
+    }
+
     fn validate_short(s: &str) {
         if s.len() != 1 {
             panic!("single character can be used for short arg param.");
@@ -40,6 +49,7 @@ impl<'arg> Arg<'arg> {
 
 impl<'arg> Arg<'arg> {
     pub fn new(n: &'arg str) -> Self {
+        Self::validate_arg_name(n);
         Arg {
             name: n,
             short: None,
