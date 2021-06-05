@@ -4,6 +4,7 @@ pub struct Arg<'arg> {
     pub long: Option<&'arg str>,
     pub need_value: bool,
     pub index: Option<u8>,
+    pub flag: bool,
 }
 
 impl<'arg> Arg<'arg> {
@@ -45,6 +46,12 @@ impl<'arg> Arg<'arg> {
             panic!("index cannot be used simultaneously with short arg param or long arg param.")
         }
     }
+
+    fn validate_flag(&self) {
+        if self.is_short_and_long_name_empty() {
+            panic!("flag arg must need short name or long name.");
+        }
+    }
 }
 
 impl<'arg> Arg<'arg> {
@@ -56,6 +63,7 @@ impl<'arg> Arg<'arg> {
             long: None,
             need_value: false,
             index: None,
+            flag: false,
         }
     }
 
@@ -80,6 +88,12 @@ impl<'arg> Arg<'arg> {
     pub fn index(mut self, i: u8) -> Self {
         Self::validate_index(&self);
         self.index = Some(i);
+        self
+    }
+
+    pub fn flag(mut self, b: bool) -> Self {
+        Self::validate_flag(&self);
+        self.flag = b;
         self
     }
 
@@ -208,6 +222,23 @@ mod tests {
         #[should_panic]
         fn with_name() {
             let _ = Arg::new("foo").short("a").index(1);
+        }
+    }
+
+    mod flag {
+        use super::*;
+
+        #[test]
+        fn base() {
+            let actual = Arg::new("foo").short("a").flag(true).flag;
+            let expected = true;
+            assert_eq!(actual, expected);
+        }
+
+        #[test]
+        #[should_panic]
+        fn with_no_name() {
+            let _ = Arg::new("foo").flag(true);
         }
     }
 }
