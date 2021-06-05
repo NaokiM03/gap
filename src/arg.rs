@@ -1,12 +1,12 @@
-pub struct Arg<'a> {
-    pub name: &'a str,
+pub struct Arg<'arg> {
+    pub name: &'arg str,
     pub short: Option<char>,
-    pub long: Option<&'a str>,
+    pub long: Option<&'arg str>,
     pub need_value: bool,
     pub index: Option<u8>,
 }
 
-impl<'a> Arg<'a> {
+impl<'arg> Arg<'arg> {
     fn validate_short(s: &str) {
         if s.len() != 1 {
             panic!("single character can be used for short arg param.");
@@ -38,8 +38,8 @@ impl<'a> Arg<'a> {
     }
 }
 
-impl<'a> Arg<'a> {
-    pub fn new(n: &'a str) -> Self {
+impl<'arg> Arg<'arg> {
+    pub fn new(n: &'arg str) -> Self {
         Arg {
             name: n,
             short: None,
@@ -55,7 +55,7 @@ impl<'a> Arg<'a> {
         self
     }
 
-    pub fn long(mut self, s: &'a str) -> Self {
+    pub fn long(mut self, s: &'arg str) -> Self {
         Self::validate_long(s);
         self.long = Some(s);
         self
