@@ -96,6 +96,29 @@ impl<'arg> Arg<'arg> {
 mod tests {
     use super::*;
 
+    mod name {
+        use super::*;
+
+        #[test]
+        fn base() {
+            let actual = Arg::new("foo").name;
+            let expected = "foo";
+            assert_eq!(actual, expected);
+        }
+
+        #[test]
+        #[should_panic]
+        fn with_empty_str() {
+            let _ = Arg::new("");
+        }
+
+        #[test]
+        #[should_panic]
+        fn with_not_ascii() {
+            let _ = Arg::new("!");
+        }
+    }
+
     mod short {
         use super::*;
 
