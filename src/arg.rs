@@ -1,3 +1,7 @@
+pub mod opt_arg;
+pub mod pos_arg;
+pub mod flag_arg;
+
 pub struct Arg<'arg> {
     pub name: &'arg str,
     pub short: Option<char>,
