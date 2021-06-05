@@ -35,13 +35,13 @@ impl<'arg> Arg<'arg> {
     }
 
     fn validate_need_value(&self) {
-        if self.is_name_empty() {
+        if self.is_short_and_long_name_empty() {
             panic!("expect short arg param or long arg param before define this.")
         }
     }
 
     fn validate_index(&self) {
-        if self.is_name_present() {
+        if self.is_short_or_long_name_present() {
             panic!("index cannot be used simultaneously with short arg param or long arg param.")
         }
     }
@@ -83,11 +83,11 @@ impl<'arg> Arg<'arg> {
         self
     }
 
-    pub fn is_name_present(&self) -> bool {
+    pub fn is_short_or_long_name_present(&self) -> bool {
         self.short.is_some() || self.long.is_some()
     }
 
-    pub fn is_name_empty(&self) -> bool {
+    pub fn is_short_and_long_name_empty(&self) -> bool {
         self.short.is_none() && self.long.is_none()
     }
 }
