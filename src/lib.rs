@@ -1,4 +1,5 @@
 mod arg;
+mod parser;
 
 #[cfg(test)]
 mod tests {
