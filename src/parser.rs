@@ -36,6 +36,12 @@ impl<'p> Parser<'p> {
             panic!("index must be unique. \"{}\" is already used.", i);
         }
     }
+
+    fn validate_unique_flag(&self, s: &str) {
+        if self.flags_list.contains_key(s) {
+            panic!("flag must be unique. \"{}\" is already used.", s);
+        }
+    }
 }
 
 impl<'p> Parser<'p> {
@@ -81,6 +87,7 @@ impl<'p> Parser<'p> {
         } 
         
         if a.flag {
+            Self::validate_unique_flag(&self, a.name);
             self.flags_list.insert(a.name, FlagArg {
                 name: a.name,
                 short: a.short,
@@ -125,5 +132,11 @@ mod tests {
     #[should_panic]
     fn unique_index() {
         let _ = Parser::new().arg(Arg::new("foo").index(1)).arg(Arg::new("bar").index(1));
+    }
+
+    #[test]
+    #[should_panic]
+    fn unique_flag() {
+        let _ = Parser::new().arg(Arg::new("foo").short("a").flag(true)).arg(Arg::new("bar").short("a").flag(true));
     }
 }
