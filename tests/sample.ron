@@ -1,0 +1,33 @@
+Config(
+    args: [
+        (
+            name: "foo",
+            short: Some("f"),
+            need_value: Some(true),
+        ),
+        (
+            name: "bar",
+            long: Some("bar"),
+            need_value: Some(true),
+        ),
+        (
+            name: "aaa",
+            short: Some("a"),
+            flag: Some(true),
+        ),
+        (
+            name: "bbb",
+            short: Some("b"),
+            flag: Some(true),
+        ),
+        (
+            name: "ccc",
+            long: Some("ccc"),
+            flag: Some(true),
+        ),
+        (
+            name: "param",
+            index: Some(1),
+        ),
+    ],
+)
