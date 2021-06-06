@@ -1,6 +1,6 @@
+pub mod flag_arg;
 pub mod opt_arg;
 pub mod pos_arg;
-pub mod flag_arg;
 
 pub struct Arg<'arg> {
     pub name: &'arg str,
@@ -16,7 +16,10 @@ impl<'arg> Arg<'arg> {
         if s.is_empty() {
             panic!("arg name is required.")
         }
-        if !s.chars().all(|x| x.is_ascii_lowercase() || x.is_ascii_digit()) {
+        if !s
+            .chars()
+            .all(|x| x.is_ascii_lowercase() || x.is_ascii_digit())
+        {
             panic!("ascii character or ascii digit can be used for arg name.")
         }
     }
@@ -146,24 +149,24 @@ mod tests {
             let expected = Some('a');
             assert_eq!(actual, expected);
         }
-    
+
         #[test]
         #[should_panic]
         fn with_empty_str() {
             let _ = Arg::new("foo").short("");
         }
-    
+
         #[test]
         #[should_panic]
         fn wigh_two_str() {
             let _ = Arg::new("foo").short("ab").short;
         }
-    
+
         #[test]
         #[should_panic]
         fn with_not_ascii() {
             let _ = Arg::new("foo").short("!").short;
-        }    
+        }
     }
 
     mod long {
@@ -175,24 +178,24 @@ mod tests {
             let expected = Some("abc");
             assert_eq!(actual, expected);
         }
-    
+
         #[test]
         #[should_panic]
         fn with_empty_str() {
             let _ = Arg::new("foo").long("");
         }
-    
+
         #[test]
         #[should_panic]
         fn wigh_single_char() {
             let _ = Arg::new("foo").long("a");
         }
-    
+
         #[test]
         #[should_panic]
         fn with_not_ascii() {
             let _ = Arg::new("foo").long("a!");
-        }    
+        }
     }
 
     mod need_value {

@@ -3,9 +3,7 @@ use std::{
     ops::Not,
 };
 
-use crate::{
-    parser::Parser,
-};
+use crate::parser::Parser;
 
 #[derive(Debug, Default)]
 pub struct ResultParams {
@@ -16,35 +14,47 @@ pub struct ResultParams {
 
 impl ResultParams {
     fn try_insert_short_opt(&mut self, parser: &Parser, c: char, value: &str) {
-        if let Some(opt_arg) = parser.options_list
-                                            .values()
-                                            .filter(|x| x.short.is_some())
-                                            .find(|x| x.short.unwrap() == c) {
-            self.opt_param.insert(opt_arg.name.to_owned(), value.to_owned());
+        if let Some(opt_arg) = parser
+            .options_list
+            .values()
+            .filter(|x| x.short.is_some())
+            .find(|x| x.short.unwrap() == c)
+        {
+            self.opt_param
+                .insert(opt_arg.name.to_owned(), value.to_owned());
         }
     }
 
     fn try_insert_long_opt(&mut self, parser: &Parser, s: &str, value: &str) {
-        if let Some(opt_arg) = parser.options_list
-                                            .values()
-                                            .filter(|x| x.long.is_some())
-                                            .find(|x| x.long.unwrap() == s) {
-            self.opt_param.insert(opt_arg.name.to_owned(), value.to_owned());
+        if let Some(opt_arg) = parser
+            .options_list
+            .values()
+            .filter(|x| x.long.is_some())
+            .find(|x| x.long.unwrap() == s)
+        {
+            self.opt_param
+                .insert(opt_arg.name.to_owned(), value.to_owned());
         }
     }
 
     fn try_insert_short_flag(&mut self, parser: &Parser, c: char) {
-        if let Some(flag_arg) = parser.flags_list.values()
-                                            .filter(|x| x.short.is_some())
-                                            .find(|x| x.short.unwrap() == c) {
+        if let Some(flag_arg) = parser
+            .flags_list
+            .values()
+            .filter(|x| x.short.is_some())
+            .find(|x| x.short.unwrap() == c)
+        {
             self.flag_param.insert(flag_arg.name.to_owned());
         }
     }
 
     fn try_insert_long_flag(&mut self, parser: &Parser, s: &str) {
-        if let Some(flag_arg) = parser.flags_list.values()
-                                            .filter(|x| x.long.is_some())
-                                            .find(|x| x.long.unwrap() == s) {
+        if let Some(flag_arg) = parser
+            .flags_list
+            .values()
+            .filter(|x| x.long.is_some())
+            .find(|x| x.long.unwrap() == s)
+        {
             self.flag_param.insert(flag_arg.name.to_owned());
         }
     }
@@ -72,9 +82,7 @@ impl ResultParams {
     }
 
     pub fn try_insert_pos(&mut self, parser: &Parser, i: u8, s: &str) {
-        if let Some(pos_arg) = parser.positions_list
-                                                .values()
-                                                .find(|x| x.index == i) {
+        if let Some(pos_arg) = parser.positions_list.values().find(|x| x.index == i) {
             self.pos_param.insert(pos_arg.name.to_owned(), s.to_owned());
         }
     }
@@ -94,7 +102,7 @@ impl ResultParams {
             _ if is_long_key => {
                 self.try_insert_long_flag(parser, s);
             }
-            _ => unreachable!()
+            _ => unreachable!(),
         }
     }
 }
@@ -102,16 +110,16 @@ impl ResultParams {
 impl ResultParams {
     pub fn value_of(&self, key: &str) -> Option<&str> {
         if let Some(ref value) = self.opt_param.get(key) {
-            return Some(&value.as_str())
+            return Some(&value.as_str());
         } else if let Some(value) = self.pos_param.get(key) {
-            return Some(&value.as_str())
+            return Some(&value.as_str());
         }
         None
     }
 
     pub fn is_present(&self, key: &str) -> bool {
         self.opt_param.contains_key(key)
-        || self.pos_param.contains_key(key)
-        || self.flag_param.contains(key)
+            || self.pos_param.contains_key(key)
+            || self.flag_param.contains(key)
     }
 }
