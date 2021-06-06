@@ -149,9 +149,21 @@ impl<'p> Parser<'p> {
                 continue;
             }
 
-            let is_flag = self
-                .flags_list
-                .contains_key(current_str.trim_start_matches('-'));
+            let is_short_key = current_str.starts_with("--").not();
+
+            let is_flag = if is_short_key {
+                // check if all short keys are included in flag.
+                current_str.trim_start_matches('-').chars().all(|c| {
+                    self.flags_list
+                        .values()
+                        .filter(|x| x.short.is_some())
+                        .any(|x| x.short.unwrap() == c)
+                })
+            } else {
+                self.flags_list
+                    .contains_key(current_str.trim_start_matches('-'))
+            };
+
             if is_flag {
                 result.try_insert_flag(&self, current_str);
                 continue;
