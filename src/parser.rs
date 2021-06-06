@@ -1,16 +1,21 @@
 use core::panic;
-use std::collections::{HashSet, BTreeMap};
+use std::{collections::{HashSet, BTreeMap, LinkedList}, ops::Not};
 
-use crate::arg::{Arg, opt_arg::OptArg, pos_arg::PosArg, flag_arg::FlagArg};
+use crate::arg::{
+    Arg,
+    opt_arg::OptArg, pos_arg::PosArg, flag_arg::FlagArg,
+};
+use crate::result::ResultParams;
 
+#[derive(Debug, Default)]
 pub struct Parser<'p> {
     command: &'p str,
     arg_names_list: HashSet<&'p str>,
     short_names_list: HashSet<char>,
     long_names_list: HashSet<&'p str>,
-    options_list: BTreeMap<&'p str, OptArg<'p>>,
-    positions_list: BTreeMap<u8, PosArg<'p>>,
-    flags_list: BTreeMap<&'p str, FlagArg<'p>>,
+    pub options_list: BTreeMap<&'p str, OptArg<'p>>,
+    pub positions_list: BTreeMap<u8, PosArg<'p>>,
+    pub flags_list: BTreeMap<&'p str, FlagArg<'p>>,
 }
 
 impl<'p> Parser<'p> {
@@ -103,6 +108,52 @@ impl<'p> Parser<'p> {
     pub fn input_command(mut self, s: &'p str) -> Self {
         self.command = s;
         self
+    }
+
+    pub fn execute(&self) -> ResultParams {
+        let mut arg_list = LinkedList::<&str>::new();
+        for s in self.command.split_whitespace().collect::<Vec<&str>>().into_iter() {
+            arg_list.push_back(s);
+        }
+
+        let mut result = ResultParams::new();
+        let mut pos_arg_index: u8 = 1;
+
+        while arg_list.is_empty().not() {
+            let current_str = arg_list.pop_front().unwrap();
+
+            let current_is_value = current_str.starts_with('-').not();
+            if current_is_value {
+                result.try_insert_pos(&self, pos_arg_index, current_str);
+                pos_arg_index += 1;
+                continue;
+            }
+
+            let current_is_last = arg_list.front().is_none();
+            if current_is_last {
+                result.try_insert_flag(&self, current_str);
+                continue;
+            }
+
+            let is_flag = self.flags_list.contains_key(current_str.trim_start_matches('-'));
+            if is_flag {
+                result.try_insert_flag(&self, current_str);
+                continue;
+            }
+
+            let next_str = arg_list.front().unwrap();
+
+            let next_is_key = next_str.starts_with('-');
+            if next_is_key {
+                result.try_insert_flag(&self, current_str);
+                continue;
+            }
+
+            result.try_insert_opt(&self, current_str, next_str);
+            arg_list.pop_front();
+        }
+
+        result
     }
 }
 
