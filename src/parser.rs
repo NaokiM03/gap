@@ -5,7 +5,7 @@ use std::{
 };
 
 use crate::arg::{flag_arg::FlagArg, opt_arg::OptArg, pos_arg::PosArg, Arg};
-use crate::result::ResultParams;
+use crate::result_params::ResultParams;
 
 #[derive(Debug, Default)]
 pub struct Parser<'p> {
