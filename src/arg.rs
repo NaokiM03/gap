@@ -83,9 +83,9 @@ impl<'arg> Arg<'arg> {
         self
     }
 
-    pub fn need_value(mut self, b: bool) -> Self {
+    pub fn need_value(mut self) -> Self {
         Self::validate_need_value(&self);
-        self.need_value = b;
+        self.need_value = true;
         self
     }
 
@@ -95,9 +95,9 @@ impl<'arg> Arg<'arg> {
         self
     }
 
-    pub fn flag(mut self, b: bool) -> Self {
+    pub fn flag(mut self) -> Self {
         Self::validate_flag(&self);
-        self.flag = b;
+        self.flag = true;
         self
     }
 
@@ -200,7 +200,7 @@ mod tests {
 
         #[test]
         fn base() {
-            let actual = Arg::new("foo").short("a").need_value(true).need_value;
+            let actual = Arg::new("foo").short("a").need_value().need_value;
             let expected = true;
             assert_eq!(actual, expected);
         }
@@ -208,7 +208,7 @@ mod tests {
         #[test]
         #[should_panic]
         fn with_no_name() {
-            let _ = Arg::new("foo").need_value(true);
+            let _ = Arg::new("foo").need_value();
         }
     }
 
@@ -234,7 +234,7 @@ mod tests {
 
         #[test]
         fn base() {
-            let actual = Arg::new("foo").short("a").flag(true).flag;
+            let actual = Arg::new("foo").short("a").flag().flag;
             let expected = true;
             assert_eq!(actual, expected);
         }
@@ -242,7 +242,7 @@ mod tests {
         #[test]
         #[should_panic]
         fn with_no_name() {
-            let _ = Arg::new("foo").flag(true);
+            let _ = Arg::new("foo").flag();
         }
     }
 }

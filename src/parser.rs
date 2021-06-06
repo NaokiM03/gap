@@ -14,12 +14,6 @@ pub struct Parser<'p> {
 }
 
 impl<'p> Parser<'p> {
-    fn validate_command_present(s: &str) {
-        if s.is_empty() {
-            panic!("command is required.");
-        }
-    }
-
     fn validate_unique_arg_name(&self, s: &str) {
         if self.arg_names_list.contains(s) {
             panic!("arg name must be unique. \"{}\" is already used.", s);
@@ -52,10 +46,9 @@ impl<'p> Parser<'p> {
 }
 
 impl<'p> Parser<'p> {
-    pub fn new(s: &'p str) -> Self {
-        Self::validate_command_present(s);
+    pub fn new() -> Self {
         Parser {
-            command: s,
+            command: "",
             arg_names_list: HashSet::new(),
             short_names_list: HashSet::new(),
             long_names_list: HashSet::new(),
@@ -106,6 +99,11 @@ impl<'p> Parser<'p> {
 
         self
     }
+
+    pub fn input_command(mut self, s: &'p str) -> Self {
+        self.command = s;
+        self
+    }
 }
 
 #[cfg(test)]
@@ -114,44 +112,38 @@ mod tests {
 
     #[test]
     fn base() {
-        let actual = Parser::new("command").arg(Arg::new("foo").short("a")).arg_names_list.contains("foo");
+        let actual = Parser::new().arg(Arg::new("foo").short("a")).input_command("").arg_names_list.contains("foo");
         let expected = true;
         assert_eq!(actual, expected);
     }
 
     #[test]
     #[should_panic]
-    fn empty_command() {
-        let _ = Parser::new("");
-    }
-
-    #[test]
-    #[should_panic]
     fn unique_arg_name() {
-        let _ = Parser::new("command").arg(Arg::new("foo")).arg(Arg::new("foo"));
+        let _ = Parser::new().arg(Arg::new("foo")).arg(Arg::new("foo")).input_command("");
     }
 
     #[test]
     #[should_panic]
     fn unique_short_name() {
-        let _ = Parser::new("command").arg(Arg::new("foo").short("a")).arg(Arg::new("bar").short("a"));
+        let _ = Parser::new().arg(Arg::new("foo").short("a")).arg(Arg::new("bar").short("a")).input_command("");
     }
 
     #[test]
     #[should_panic]
     fn unique_long_name() {
-        let _ = Parser::new("command").arg(Arg::new("foo").long("abc")).arg(Arg::new("bar").long("abc"));
+        let _ = Parser::new().arg(Arg::new("foo").long("abc")).arg(Arg::new("bar").long("abc")).input_command("");
     }
 
     #[test]
     #[should_panic]
     fn unique_index() {
-        let _ = Parser::new("command").arg(Arg::new("foo").index(1)).arg(Arg::new("bar").index(1));
+        let _ = Parser::new().arg(Arg::new("foo").index(1)).arg(Arg::new("bar").index(1)).input_command("");
     }
 
     #[test]
     #[should_panic]
     fn unique_flag() {
-        let _ = Parser::new("command").arg(Arg::new("foo").short("a").flag(true)).arg(Arg::new("bar").short("a").flag(true));
+        let _ = Parser::new().arg(Arg::new("foo").short("a").flag()).arg(Arg::new("bar").short("a").flag()).input_command("");
     }
 }
